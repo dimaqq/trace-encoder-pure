@@ -1,0 +1,19 @@
+[package]
+name = "otlp-dummy-span"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+prost = "0.11"
+prost-types = "0.11"
+
+[build-dependencies]
+prost-build = "0.11"
+
+# Optimize for minimal size in release builds
+[profile.release]
+lto = true
+panic = "abort"
+opt-level = "z"
+strip = "symbols"
+codegen-units = 1

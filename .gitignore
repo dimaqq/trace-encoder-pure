@@ -1,0 +1,15 @@
+# Binaries and build artifacts
+/target
+**/target
+
+# Prost build output (usually goes into target/OUT_DIR)
+# (Ignored by ignoring target/, but included for clarity.)
+/**/out
+
+# The generated dummy span file
+dummy_span.bin
+
+# If you want to ignore any editor or system files:
+.DS_Store
+.idea/
+.vscode/
