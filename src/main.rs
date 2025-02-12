@@ -13,8 +13,8 @@ fn main() {
     // Create a dummy Span with some plausible IDs and a name.
     let dummy_span = Span {
         trace_id: "0000000000000000beefdeaddeadbeef".to_string(),
-        span_id:  "00000000cafebabecafebabe".to_string(),
-        name:     "my-dummy-operation".to_string(),
+        span_id: "00000000cafebabecafebabe".to_string(),
+        name: "my-dummy-operation".to_string(),
         // Prost-generated structs have more fields; we leave them defaulted.
         ..Default::default()
     };
@@ -36,5 +36,8 @@ fn main() {
     // Write to file for inspection, debugging, or further testing.
     std::fs::write("dummy_span.bin", &encoded).expect("Failed to write file");
 
-    println!("Serialized ResourceSpans to dummy_span.bin ({} bytes).", encoded.len());
+    println!(
+        "Serialized ResourceSpans to dummy_span.bin ({} bytes).",
+        encoded.len()
+    );
 }
