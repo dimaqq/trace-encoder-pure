@@ -464,7 +464,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "trace_encode_lite"
+name = "trace-encoder-lite"
 version = "0.1.0"
 dependencies = [
  "prost",
