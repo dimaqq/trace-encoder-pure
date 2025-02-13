@@ -1,0 +1,23 @@
+[project]
+name = "trace-encoder-lite"
+version = "1.0.0"
+description = "🐍Lightweight OTEL span to binary converter, written in Rust🦀"
+#readme = "README.md"
+requires-python = ">=3.8"
+dependencies = []
+
+[dependency-groups]
+dev = [
+    "maturin>=1.8.2",
+    "pytest>=8.3.4",
+]
+
+[build-system]
+requires = ["maturin ~= 1.8", "typing-extensions ~= 4.12"]
+build-backend = "maturin"
+
+[tool.uv]
+cache-keys = [{file = "pyproject.toml"}, {file = "rust/Cargo.toml"}, {file = "src/*.rs"}, {file = "opentelemetry/**/*.proto"}]
+
+[tool.maturin]
+module-name = "trace_encoder_lite"
