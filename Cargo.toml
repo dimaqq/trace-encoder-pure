@@ -1,11 +1,16 @@
 [package]
-name = "otlp-dummy-span"
+name = "trace_encode_lite"
 version = "0.1.0"
 edition = "2021"
+
+[lib]
+name = "trace_encoder_lite"
+crate-type = ["cdylib"]
 
 [dependencies]
 prost = "0.11"
 prost-types = "0.11"
+pyo3 = { version = "0.18", features = ["extension-module"] }
 
 [build-dependencies]
 prost-build = "0.11"

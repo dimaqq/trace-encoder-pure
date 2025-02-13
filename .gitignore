@@ -13,3 +13,4 @@ dummy_span.bin
 .DS_Store
 .idea/
 .vscode/
+.*.swp
