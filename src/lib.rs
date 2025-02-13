@@ -32,21 +32,20 @@ use otlp::trace::v1::{ResourceSpans, ScopeSpans, Span};
 fn encode_spans(py: Python, spans: &PyAny) -> PyResult<Py<PyBytes>> {
     let iter = spans.iter()?;
 
-    // Build a vector of Rust "Span" objects
     let mut rust_spans = Vec::new();
     for item in iter {
-        let span_obj = item?;
+        let span = item?;
 
         // Extract required fields from the Python object
-        let trace_id = span_obj.getattr("trace_id")?.extract::<u128>()?;
-        let span_id = span_obj.getattr("span_id")?.extract::<u64>()?;
-        let name = span_obj.getattr("name")?.extract::<String>()?;
+        let context = span.getattr("context")?;
+        let trace_id = context.getattr("trace_id")?.extract::<u128>()?;
+        let span_id = context.getattr("span_id")?.extract::<u64>()?;
+        let name = span.getattr("name")?.extract::<String>()?;
 
         rust_spans.push(Span {
             trace_id: trace_id.to_be_bytes().to_vec(),
             span_id: span_id.to_be_bytes().to_vec(),
             name,
-            // Fill any other fields as needed
             ..Default::default()
         });
     }
