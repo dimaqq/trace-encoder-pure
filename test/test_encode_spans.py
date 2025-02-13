@@ -1,10 +1,12 @@
-import pytest
+import subprocess
 from typing import Sequence
 from typing_extensions import reveal_type as reveal_type
 
 from opentelemetry.sdk.trace import TracerProvider, ReadableSpan
 from opentelemetry.sdk.trace.export import SimpleSpanProcessor
 from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanExporter
+from opentelemetry.exporter.otlp.proto.common._internal import trace_encoder
+import pytest
 
 import trace_encoder_lite
 
@@ -44,5 +46,27 @@ def test_encode_spans(mock_span):
     trace_encoder_lite.encode_spans([mock_span])
 
 
-def test_real_spans(sample_spans):
-    trace_encoder_lite.encode_spans(sample_spans)
+def test_function_signature(sample_spans):
+    res = trace_encoder_lite.encode_spans(sample_spans)
+    kwres: bytes = trace_encoder_lite.encode_spans(sdk_spans=sample_spans)
+    assert res == kwres
+
+
+def test_equivalence(sample_spans):
+    ours = trace_encoder_lite.encode_spans(sample_spans)
+    data = trace_encoder.encode_spans(sample_spans).SerializePartialToString()
+    assert text(ours) == text(data)
+
+
+# TODO: skip tests is protoc is not in PATH
+def text(data: bytes) -> str:
+    return subprocess.run(
+        [
+            "protoc",
+            "--decode=opentelemetry.proto.collector.trace.v1.ExportTraceServiceRequest",
+            "opentelemetry/proto/collector/trace/v1/trace_service.proto",
+        ],
+        input=data,
+        capture_output=True,
+        check=True,
+    ).stdout.decode("utf-8")
