@@ -9,7 +9,7 @@ crate-type = ["cdylib"]
 [dependencies]
 prost = "0.11"
 prost-types = "0.11"  # Only if using Timestamp or Any
-pyo3 = { version = "0.18", features = ["extension-module"] }
+pyo3 = { version = "0.23.4", features = ["extension-module"] }
 
 [build-dependencies]
 prost-build = "0.11"

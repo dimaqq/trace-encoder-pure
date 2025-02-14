@@ -4,6 +4,11 @@ version = "1.0.0"
 description = "🐍Lightweight OTEL span to binary converter, written in Rust🦀"
 #readme = "README.md"
 requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Rust",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+]
 dependencies = []
 
 [dependency-groups]
