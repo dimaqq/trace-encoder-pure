@@ -1,6 +1,9 @@
+from __future__ import annotations
 from typing import TYPE_CHECKING, Sequence
 
 if TYPE_CHECKING:
-    from opentelemetry.sdk.trace import ReadableSpan
+    import opentelemetry.sdk.trace
 
-def encode_spans(sdk_spans: Sequence["ReadableSpan"]) -> bytes: ...
+def encode_spans(
+    sdk_spans: Sequence[opentelemetry.sdk.trace.ReadableSpan],
+) -> bytes: ...

@@ -44,29 +44,6 @@ use crate::otlp::{
     trace::v1::{span::SpanKind, ResourceSpans, ScopeSpans, Span},
 };
 
-/*
-pub fn parse_scope(py_scope: &PyAny) -> ScopeKey {
-    let name = py_scope
-        .getattr("name")
-        .and_then(|x| x.extract::<String>()) // TODO: name may have to be set
-        .ok();
-    let version = py_scope
-        .getattr("version")
-        .and_then(|x| x.extract::<String>()) // ok to omit
-        .ok();
-    let schema_url = py_scope
-        .getattr("schema_url")
-        .and_then(|x| x.extract::<String>()) // ok to omit
-        .ok();
-
-    ScopeKey {
-        name,
-        version,
-        schema_url,
-    }
-}
-*/
-
 /// Convert something that satisfies Python dict[str, str] protocol.
 /// Must be done with a hack, because OTEL attributes are a mapping, not a dict.
 fn dict_like_to_kv(py_mapping: &Bound<'_, PyAny>) -> PyResult<Vec<KeyValue>> {
@@ -88,10 +65,13 @@ fn dict_like_to_kv(py_mapping: &Bound<'_, PyAny>) -> PyResult<Vec<KeyValue>> {
     Ok(rv)
 }
 
-/// encode_spans(sdk_spans: Sequece[ReadableSpan]) -> bytes
-/// --
+/// Encode `sdk_spans` into an OTLP Protobuf, serialise and return `bytes`.
 ///
-/// Encode `sdk_spans` into an OTLP Protobuf and return `bytes`.
+/// Args:
+///     sdk_spans: Sequence[opentelemetry.sdk.trace.ReadableSpan],
+///
+/// Returns:
+///     bytes(opentelemetry/proto/collector/trace/v1/trace_service.proto:ExportTraceServiceRequest)
 #[pyfunction]
 #[pyo3(signature = (sdk_spans))]
 fn encode_spans(sdk_spans: &Bound<'_, PyAny>) -> PyResult<Vec<u8>> {
@@ -241,12 +221,6 @@ fn encode_spans(sdk_spans: &Bound<'_, PyAny>) -> PyResult<Vec<u8>> {
 
         Ok(request.encode_to_vec())
     })
-
-    // FIXME:
-    // - resource
-    // - scope
-    // - timestamps
-    // - status
 }
 
 /// 🐍Lightweight OTEL span to binary converter, written in Rust🦀
