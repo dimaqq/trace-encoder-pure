@@ -41,7 +41,7 @@ use crate::otlp::{
     collector::trace::v1::ExportTraceServiceRequest,
     common::v1::{any_value::Value, AnyValue, InstrumentationScope, KeyValue},
     resource::v1::Resource,
-    trace::v1::{span::SpanKind, ResourceSpans, ScopeSpans, Span},
+    trace::v1::{span::SpanKind, ResourceSpans, ScopeSpans, Span, Status},
 };
 
 /// Convert something that satisfies Python dict[str, str] protocol.
@@ -178,6 +178,7 @@ fn encode_spans(sdk_spans: &Bound<'_, PyAny>) -> PyResult<Vec<u8>> {
             }
 
             let context = span.getattr("context")?;
+            let status = span.getattr("status")?;
 
             request
                 .resource_spans
@@ -202,6 +203,7 @@ fn encode_spans(sdk_spans: &Bound<'_, PyAny>) -> PyResult<Vec<u8>> {
                     kind: span
                         .getattr("kind")
                         .and_then(|k| k.extract::<i32>())
+                        // TODO: special logic for remote spans?
                         .unwrap_or(SpanKind::Internal as i32),
                     start_time_unix_nano: span
                         .getattr("start_time")
@@ -215,12 +217,36 @@ fn encode_spans(sdk_spans: &Bound<'_, PyAny>) -> PyResult<Vec<u8>> {
                         .getattr("flags")
                         .and_then(|f| f.extract::<u32>())
                         .unwrap_or(256),
+                    // dropped_attributes_count
+                    // events
+                    // dropped_events_count
+                    // links
+                    // dropped_links_count
+                    // TODO: Python drops this struct if field is None
+                    status: Some(Status {
+                        // status is always set, and status_code too
+                        code: status
+                            .getattr("status_code")?
+                            .getattr("value")?
+                            .extract::<i32>()?,
+                        // logically optional. empty str or none?
+                        message: status
+                            .getattr("description")
+                            .ok()
+                            .and_then(|d| d.extract::<String>().ok())
+                            .unwrap_or_default(),
+                        ..Default::default()
+                    }),
                     ..Default::default()
                 });
         }
 
         Ok(request.encode_to_vec())
     })
+    // FIXME TODO
+    // Events
+    // Baggage
+    // Links
 }
 
 /// 🐍Lightweight OTEL span to binary converter, written in Rust🦀
