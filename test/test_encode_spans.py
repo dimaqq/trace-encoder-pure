@@ -1,12 +1,13 @@
 import subprocess
+from unittest.mock import Mock
 from typing import Sequence
-from typing_extensions import reveal_type as reveal_type
 
 from opentelemetry.sdk.trace import TracerProvider, ReadableSpan
 from opentelemetry.sdk.trace.export import SimpleSpanProcessor
 from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanExporter
 from opentelemetry.exporter.otlp.proto.common._internal import trace_encoder
 import pytest
+from typing_extensions import reveal_type as reveal_type
 
 import trace_encoder_lite
 
@@ -30,14 +31,26 @@ def sample_spans() -> Sequence[ReadableSpan]:
 
 @pytest.fixture
 def mock_span():
-    # FIXME this doesn't mirror opentelemetry-api
+    good = Mock()
+    good.status_code.value = 0
+
     class Context:
         span_id = 42
         trace_id = 42
 
+    class Resource:
+        attributes = dict()
+
+    class Scope:
+        name = "foo"
+        version = "1.2.3"
+
     class Span:
         name = "booya"
         context = Context()
+        resource = Resource()
+        instrumentation_scope = Scope()
+        status = good
 
     return Span()
 
