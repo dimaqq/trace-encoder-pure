@@ -65,7 +65,7 @@ fn dict_like_to_kv(py_mapping: &Bound<'_, PyAny>) -> PyResult<Vec<KeyValue>> {
     Ok(rv)
 }
 
-/// Encode `sdk_spans` into an OTLP Protobuf, serialise and return `bytes`.
+/// Encode `sdk_spans` into an OTLP 1.5 Protobuf, serialise and return `bytes`.
 ///
 /// Args:
 ///     sdk_spans: Sequence[opentelemetry.sdk.trace.ReadableSpan],
@@ -199,6 +199,8 @@ fn encode_spans(sdk_spans: &Bound<'_, PyAny>) -> PyResult<Vec<u8>> {
                         .extract::<u64>()?
                         .to_be_bytes()
                         .to_vec(),
+                    // FIXME: parent_span_id = span.parent?.span_id or unset
+                    // TODO: context.trace_state??
                     name: span.getattr("name")?.extract::<String>()?,
                     kind: span
                         .getattr("kind")
@@ -214,7 +216,7 @@ fn encode_spans(sdk_spans: &Bound<'_, PyAny>) -> PyResult<Vec<u8>> {
                         .and_then(|t| t.extract::<u64>())
                         .unwrap_or_default(),
                     flags: span
-                        .getattr("flags")
+                        .getattr("flags") // FIXME: span.parent?.WTF
                         .and_then(|f| f.extract::<u32>())
                         .unwrap_or(256),
                     // dropped_attributes_count
@@ -251,6 +253,6 @@ fn encode_spans(sdk_spans: &Bound<'_, PyAny>) -> PyResult<Vec<u8>> {
 
 /// 🐍Lightweight OTEL span to binary converter, written in Rust🦀
 #[pymodule(gil_used = false)]
-fn trace_encoder_lite(m: &Bound<'_, PyModule>) -> PyResult<()> {
+fn otlp_proto(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(encode_spans, m)?)
 }
