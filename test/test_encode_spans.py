@@ -9,7 +9,7 @@ from opentelemetry.exporter.otlp.proto.common._internal import trace_encoder
 import pytest
 from typing_extensions import reveal_type as reveal_type
 
-import trace_encoder_lite
+import otlp_proto
 
 
 @pytest.fixture
@@ -56,17 +56,17 @@ def mock_span():
 
 
 def test_encode_spans(mock_span):
-    trace_encoder_lite.encode_spans([mock_span])
+    otlp_proto.encode_spans([mock_span])
 
 
 def test_function_signature(sample_spans):
-    res = trace_encoder_lite.encode_spans(sample_spans)
-    kwres: bytes = trace_encoder_lite.encode_spans(sdk_spans=sample_spans)
+    res = otlp_proto.encode_spans(sample_spans)
+    kwres: bytes = otlp_proto.encode_spans(sdk_spans=sample_spans)
     assert res == kwres
 
 
 def test_equivalence(sample_spans):
-    ours = trace_encoder_lite.encode_spans(sample_spans)
+    ours = otlp_proto.encode_spans(sample_spans)
     data = trace_encoder.encode_spans(sample_spans).SerializePartialToString()
     assert text(ours) == text(data)
 

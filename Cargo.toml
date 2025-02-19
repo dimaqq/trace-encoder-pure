@@ -1,6 +1,6 @@
 [package]
-name = "trace-encoder-lite"
-version = "1.0.0"
+name = "otlp-proto"
+version = "0.9.0"
 edition = "2021"
 
 [lib]

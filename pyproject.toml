@@ -2,7 +2,7 @@
 name = "otlp-proto"
 version = "0.9.0"
 description = "🐍Lightweight OTEL span to binary converter, written in Rust🦀"
-#readme = "README.md"
+readme = "readme.md"
 requires-python = ">=3.8"
 license = "MIT"
 classifiers = [
