@@ -57,6 +57,9 @@ fn dict_like_to_kv(py_mapping: &Bound<'_, PyAny>) -> PyResult<Vec<KeyValue>> {
             rv.push(KeyValue {
                 key,
                 value: Some(AnyValue {
+                    // FIXME:
+                    // plain types: str,int,float,bool but not None
+                    // and homogeneous arrays: list[str],list[int],...
                     value: Some(Value::StringValue(value)),
                 }),
             });
@@ -103,17 +106,9 @@ fn encode_spans(sdk_spans: &Bound<'_, PyAny>) -> PyResult<Vec<u8>> {
     //               trace_id: bytes
     //               ...
     //
-    // Comments from OTEL Python SDK
-    // # We need to inspect the spans and group + structure them as:
-    // #
-    // #   Resource
-    // #     Instrumentation Library
-    // #       Spans
-    //
-    // We don't have to preserve the original order of spans,
-    // so we're going to sort them by resource and inst. scope.
-    // That groups spans by their ancestry, and emitting spans
-    // can be done in a simple loop.
+    // We don't have to preserve the original order of spans, so we're sorting them
+    // by resource and instrumentation scope.
+    // That groups spans by their ancestry, and emission is done in a simple loop.
 
     Python::with_gil(|py| {
         let builtins = PyModule::import(py, "builtins")?;
@@ -219,12 +214,13 @@ fn encode_spans(sdk_spans: &Bound<'_, PyAny>) -> PyResult<Vec<u8>> {
                         .getattr("flags") // FIXME: span.parent?.WTF
                         .and_then(|f| f.extract::<u32>())
                         .unwrap_or(256),
-                    // dropped_attributes_count
-                    // events
-                    // dropped_events_count
-                    // links
-                    // dropped_links_count
-                    // TODO: Python drops this struct if field is None
+                    // TODO:
+                    // - dropped_attributes_count
+                    // - events
+                    // - dropped_events_count
+                    // - links
+                    // - dropped_links_count
+                    // TODO: Python drops this struct if the field is None
                     status: Some(Status {
                         // status is always set, and status_code too
                         code: status
